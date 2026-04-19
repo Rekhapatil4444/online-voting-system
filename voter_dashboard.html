@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VoteSecure — Voter Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--bg:#020408;--s1:#060d18;--s2:#0a1628;--s3:#0f1e38;--border:rgba(0,212,255,0.10);--border2:rgba(0,212,255,0.22);--accent:#00d4ff;--accent2:#0066ff;--text:#c8dff0;--muted:#4a6580;--success:#00ff9d;--danger:#ff3366;--warning:#ffb800;--sw:250px;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;display:flex;min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;}
+    body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 70% 30%,rgba(0,102,255,0.06),transparent);pointer-events:none;z-index:0;}
+
+    .sidebar{width:var(--sw);min-height:100vh;background:var(--s1);border-right:1px solid var(--border2);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;}
+    .sb-brand{padding:24px 20px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:12px;}
+    .sb-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 16px rgba(0,212,255,0.4);flex-shrink:0;}
+    .sb-title{font-family:'Orbitron',monospace;font-weight:700;font-size:14px;color:var(--accent);letter-spacing:1px;text-shadow:0 0 12px rgba(0,212,255,0.5);}
+    .sb-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+    .sb-nav{flex:1;padding:16px 12px;}
+    .sb-section{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:10px 12px 6px;font-weight:600;}
+    .nav-a{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;margin-bottom:2px;transition:all 0.2s;border:1px solid transparent;}
+    .nav-a:hover{background:var(--s2);color:var(--text);border-color:var(--border);}
+    .nav-a.active{background:rgba(0,212,255,0.07);color:var(--accent);border-color:var(--border2);}
+    .nav-a i{width:18px;text-align:center;font-size:13px;}
+    .nav-a.logout{color:var(--danger);}
+    .nav-a.logout:hover{background:rgba(255,51,102,0.08);}
+    .sb-footer{padding:14px 12px;border-top:1px solid var(--border2);}
+    .sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--s2);border-radius:10px;border:1px solid var(--border);}
+    .sb-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+    .sb-name{font-size:13px;font-weight:600;}
+    .sb-role{font-size:10px;color:var(--muted);}
+
+    .main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;position:relative;z-index:1;}
+    .topbar{padding:16px 28px;background:rgba(6,13,24,0.9);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);}
+    .topbar h1{font-family:'Orbitron',monospace;font-weight:700;font-size:18px;}
+    .date-chip{font-size:12px;color:var(--muted);}
+    .page{padding:28px;}
+
+    /* Welcome banner */
+    .welcome{background:linear-gradient(135deg,rgba(0,212,255,0.06) 0%,rgba(0,102,255,0.06) 100%);border:1px solid var(--border2);border-radius:18px;padding:28px 32px;margin-bottom:26px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;}
+    .welcome::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(0,212,255,0.1),transparent 70%);pointer-events:none;}
+    .welcome-text h2{font-family:'Orbitron',monospace;font-weight:700;font-size:20px;margin-bottom:6px;}
+    .welcome-text h2 span{color:var(--accent);}
+    .welcome-text p{color:var(--muted);font-size:15px;}
+    .welcome-emoji{font-size:52px;opacity:0.7;}
+
+    /* Stats */
+    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:26px;}
+    .stat-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:22px;transition:all 0.25s;cursor:default;}
+    .stat-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,212,255,0.1);}
+    .s-icon{font-size:26px;margin-bottom:12px;}
+    .s-val{font-family:'Orbitron',monospace;font-weight:700;font-size:32px;letter-spacing:-1px;margin-bottom:4px;}
+    .s-lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;}
+
+    /* Actions */
+    .section-lbl{font-family:'Orbitron',monospace;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;}
+    .actions-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .action-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:22px;text-decoration:none;color:var(--text);display:flex;align-items:center;gap:16px;transition:all 0.25s;}
+    .action-card:hover{border-color:var(--border2);background:var(--s2);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,212,255,0.1);color:var(--text);}
+    .a-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+    .a-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;margin-bottom:4px;letter-spacing:0.3px;}
+    .a-desc{font-size:13px;color:var(--muted);}
+    .a-arrow{margin-left:auto;color:var(--accent);font-size:16px;}
+
+    /* Election status */
+    .election-card{background:var(--s1);border:1px solid var(--border2);border-radius:14px;padding:22px;margin-top:26px;}
+    .election-card h3{font-family:'Orbitron',monospace;font-size:13px;font-weight:600;margin-bottom:16px;color:var(--accent);}
+    .election-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+    .election-item:last-child{border-bottom:none;}
+    .e-name{font-weight:600;font-size:15px;}
+    .e-dates{font-size:12px;color:var(--muted);margin-top:2px;}
+    .status-pill{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px;}
+    .s-active{background:rgba(0,255,157,0.1);color:var(--success);border:1px solid rgba(0,255,157,0.3);}
+    .s-upcoming{background:rgba(255,184,0,0.1);color:var(--warning);border:1px solid rgba(255,184,0,0.3);}
+    .s-ended{background:rgba(74,101,128,0.15);color:var(--muted);}
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-icon">🗳️</div>
+      <div><div class="sb-title">VOTESECURE</div><div class="sb-sub">Voter Portal</div></div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Navigation</div>
+      <a href="voter_dashboard.html" class="nav-a active"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="candidate_list.html" class="nav-a"><i class="fas fa-users"></i> Candidates</a>
+      <a href="cast_vote.html" class="nav-a"><i class="fas fa-vote-yea"></i> Cast Vote</a>
+      <div class="sb-section" style="margin-top:12px">Account</div>
+      <a href="login.html" class="nav-a logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar">👤</div>
+        <div><div class="sb-name" id="voterName">Voter</div><div class="sb-role">Registered</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>VOTER DASHBOARD</h1>
+      <div class="date-chip" id="dateDisp"></div>
+    </div>
+    <div class="page">
+      <div class="welcome">
+        <div class="welcome-text">
+          <h2>Welcome back, <span id="wName">Voter</span>! 👋</h2>
+          <p>Your participation shapes the future. Make your vote count.</p>
+        </div>
+        <div class="welcome-emoji">🗳️</div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="s-icon">🏛️</div>
+          <div class="s-val" style="color:var(--accent)" id="sElections">—</div>
+          <div class="s-lbl">Active Elections</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-icon">🏷️</div>
+          <div class="s-val" style="color:var(--success)" id="sPositions">—</div>
+          <div class="s-lbl">Positions Open</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-icon">✅</div>
+          <div class="s-val" style="color:var(--warning)">1</div>
+          <div class="s-lbl">Votes Cast</div>
+        </div>
+      </div>
+
+      <div class="section-lbl">Quick Actions</div>
+      <div class="actions-grid">
+        <a href="cast_vote.html" class="action-card">
+          <div class="a-icon" style="background:rgba(0,212,255,0.1)">🗳️</div>
+          <div>
+            <div class="a-title">CAST VOTE</div>
+            <div class="a-desc">Submit your vote for each position</div>
+          </div>
+          <span class="a-arrow">→</span>
+        </a>
+        <a href="candidate_list.html" class="action-card">
+          <div class="a-icon" style="background:rgba(0,102,255,0.12)">👥</div>
+          <div>
+            <div class="a-title">CANDIDATES</div>
+            <div class="a-desc">View all registered candidates</div>
+          </div>
+          <span class="a-arrow">→</span>
+        </a>
+      </div>
+
+      <div class="election-card">
+        <h3>ONGOING ELECTIONS</h3>
+        <div id="electionList"><div style="color:var(--muted);font-size:14px">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('dateDisp').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+    const voter = JSON.parse(localStorage.getItem('voter')||'{}');
+    if(voter.name){
+      document.getElementById('voterName').textContent=voter.name.split(' ')[0];
+      document.getElementById('wName').textContent=voter.name.split(' ')[0];
+    }
+
+    async function loadStats() {
+      try {
+        const [pos, elec] = await Promise.all([
+          fetch('http://localhost:5000/api/positions').then(r=>r.json()),
+          fetch('http://localhost:5000/api/elections').then(r=>r.json()),
+        ]);
+        document.getElementById('sPositions').textContent = pos.length;
+        const now = new Date();
+        const active = elec.filter(e=>now>=new Date(e.start_date)&&now<=new Date(e.end_date));
+        document.getElementById('sElections').textContent = active.length||elec.length;
+
+        function getStatus(e){
+          const s=new Date(e.start_date),en=new Date(e.end_date);
+          if(now<s) return '<span class="status-pill s-upcoming">UPCOMING</span>';
+          if(now>en) return '<span class="status-pill s-ended">ENDED</span>';
+          return '<span class="status-pill s-active">● ACTIVE</span>';
+        }
+        document.getElementById('electionList').innerHTML = elec.length ? elec.map(e=>`
+          <div class="election-item">
+            <div><div class="e-name">${e.title}</div><div class="e-dates">${e.start_date||'—'} → ${e.end_date||'—'}</div></div>
+            ${getStatus(e)}
+          </div>`).join('') : '<div style="color:var(--muted);font-size:14px;padding:12px 0">No elections found</div>';
+      } catch(e){console.error(e);}
+    }
+    loadStats();
+  </script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VoteSecure — Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{--bg:#020408;--s1:#060d18;--s2:#0a1628;--s3:#0f1e38;--border:rgba(0,212,255,0.10);--border2:rgba(0,212,255,0.22);--accent:#00d4ff;--accent2:#0066ff;--glow:rgba(0,212,255,0.18);--text:#c8dff0;--muted:#4a6580;--success:#00ff9d;--danger:#ff3366;--warning:#ffb800;--sw:250px;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;display:flex;min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;}
+
+    /* SIDEBAR */
+    .sidebar{width:var(--sw);min-height:100vh;background:var(--s1);border-right:1px solid var(--border2);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;}
+    .sb-brand{padding:24px 20px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:12px;}
+    .sb-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 16px rgba(0,212,255,0.4);flex-shrink:0;}
+    .sb-title{font-family:'Orbitron',monospace;font-weight:700;font-size:14px;color:var(--accent);letter-spacing:1px;text-shadow:0 0 12px rgba(0,212,255,0.5);}
+    .sb-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+    .sb-nav{flex:1;padding:16px 12px;overflow-y:auto;}
+    .sb-section{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:10px 12px 6px;font-weight:600;}
+    .nav-a{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;margin-bottom:2px;transition:all 0.2s;border:1px solid transparent;letter-spacing:0.3px;}
+    .nav-a:hover{background:var(--s2);color:var(--text);border-color:var(--border);}
+    .nav-a.active{background:rgba(0,212,255,0.07);color:var(--accent);border-color:var(--border2);box-shadow:inset 0 0 12px rgba(0,212,255,0.05);}
+    .nav-a i{width:18px;text-align:center;font-size:13px;}
+    .sb-footer{padding:14px 12px;border-top:1px solid var(--border2);}
+    .sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--s2);border-radius:10px;border:1px solid var(--border);}
+    .sb-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--danger),#880022);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-family:'Orbitron',monospace;font-weight:700;color:#fff;flex-shrink:0;}
+    .sb-name{font-size:13px;font-weight:600;}
+    .sb-role{font-size:10px;color:var(--muted);}
+    .sb-logout{margin-left:auto;color:var(--muted);text-decoration:none;font-size:14px;transition:color 0.2s;}
+    .sb-logout:hover{color:var(--danger);}
+
+    /* MAIN */
+    .main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;position:relative;z-index:1;}
+    .topbar{padding:16px 28px;background:rgba(6,13,24,0.9);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);}
+    .topbar h1{font-family:'Orbitron',monospace;font-weight:700;font-size:18px;color:var(--text);}
+    .live-pill{display:flex;align-items:center;gap:6px;background:rgba(0,255,157,0.08);border:1px solid rgba(0,255,157,0.25);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--success);font-weight:600;letter-spacing:0.5px;}
+    .live-dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 1.5s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.8);}}
+    .page{padding:28px;flex:1;}
+
+    /* STAT CARDS */
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+    .stat-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px 20px;transition:all 0.25s;cursor:default;position:relative;overflow:hidden;}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity 0.3s;}
+    .stat-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,212,255,0.1);}
+    .stat-card:hover::before{opacity:1;}
+    .stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:14px;}
+    .stat-val{font-family:'Orbitron',monospace;font-weight:700;font-size:30px;letter-spacing:-1px;margin-bottom:4px;}
+    .stat-lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;}
+    .stat-change{font-size:11px;margin-top:6px;}
+
+    .c-cyan{background:rgba(0,212,255,0.1);} .c-blue{background:rgba(0,102,255,0.12);} .c-green{background:rgba(0,255,157,0.1);} .c-warn{background:rgba(255,184,0,0.1);}
+    .v-cyan{color:var(--accent);} .v-blue{color:#4d9fff;} .v-green{color:var(--success);} .v-warn{color:var(--warning);}
+
+    /* CHART */
+    .chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:28px;}
+    .chart-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:24px;}
+    .chart-card h3{font-family:'Orbitron',monospace;font-size:13px;font-weight:600;color:var(--text);margin-bottom:20px;letter-spacing:0.5px;}
+    canvas{max-height:240px;}
+
+    /* Recent table */
+    .section-hdr{font-family:'Orbitron',monospace;font-size:13px;font-weight:600;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:12px;letter-spacing:0.5px;}
+    .section-hdr::after{content:'';flex:1;height:1px;background:var(--border);}
+    .data-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+    table{width:100%;border-collapse:collapse;}
+    thead th{padding:11px 18px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);background:var(--s2);border-bottom:1px solid var(--border);}
+    tbody tr{border-bottom:1px solid rgba(0,212,255,0.04);transition:background 0.15s;}
+    tbody tr:hover{background:var(--s2);}
+    tbody td{padding:13px 18px;font-size:14px;}
+    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:0.3px;}
+    .badge-cyan{background:rgba(0,212,255,0.1);color:var(--accent);}
+    .badge-green{background:rgba(0,255,157,0.1);color:var(--success);}
+    .badge-warn{background:rgba(255,184,0,0.1);color:var(--warning);}
+
+    /* Doughnut legend */
+    .legend{display:flex;flex-direction:column;gap:10px;margin-top:16px;}
+    .legend-item{display:flex;align-items:center;gap:8px;font-size:13px;}
+    .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+    .legend-name{flex:1;color:var(--text);}
+    .legend-val{color:var(--muted);font-size:12px;}
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-icon">🗳️</div>
+      <div><div class="sb-title">VOTESECURE</div><div class="sb-sub">Admin Panel</div></div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Main</div>
+      <a href="dashboard.html" class="nav-a active"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="voters.html" class="nav-a"><i class="fas fa-users"></i> Voters</a>
+      <div class="sb-section">Election</div>
+      <a href="positions.html" class="nav-a"><i class="fas fa-briefcase"></i> Positions</a>
+      <a href="candidates.html" class="nav-a"><i class="fas fa-user-tie"></i> Candidates</a>
+      <a href="votes.html" class="nav-a"><i class="fas fa-chart-bar"></i> Votes & Results</a>
+      <a href="election-title.html" class="nav-a"><i class="fas fa-clipboard-list"></i> Elections</a>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar">A</div>
+        <div><div class="sb-name">Administrator</div><div class="sb-role">Super Admin</div></div>
+        <a href="login.html" class="sb-logout"><i class="fas fa-sign-out-alt"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <h1>DASHBOARD</h1>
+      <div class="live-pill"><div class="live-dot"></div> ELECTION ACTIVE</div>
+    </div>
+    <div class="page">
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon c-cyan">🏛️</div>
+          <div class="stat-val v-cyan" id="statPositions">—</div>
+          <div class="stat-lbl">Positions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon c-blue">🧑‍💼</div>
+          <div class="stat-val v-blue" id="statCandidates">—</div>
+          <div class="stat-lbl">Candidates</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon c-green">👥</div>
+          <div class="stat-val v-green" id="statVoters">—</div>
+          <div class="stat-lbl">Voters</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon c-warn">🗳️</div>
+          <div class="stat-val v-warn" id="statVotes">—</div>
+          <div class="stat-lbl">Votes Cast</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h3>VOTES BY CANDIDATE</h3>
+          <canvas id="barChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>POSITION BREAKDOWN</h3>
+          <canvas id="doughnutChart"></canvas>
+          <div class="legend" id="dLegend"></div>
+        </div>
+      </div>
+
+      <!-- Candidates table -->
+      <div class="section-hdr">CANDIDATE STANDINGS</div>
+      <div class="data-card">
+        <table>
+          <thead><tr><th>#</th><th>Candidate</th><th>Position</th><th>Party</th><th>Votes</th></tr></thead>
+          <tbody id="candTable"><tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const COLORS = ['#00d4ff','#0066ff','#00ff9d','#ffb800','#ff3366','#a855f7','#f97316','#06b6d4'];
+
+    async function loadDashboard() {
+      try {
+        const [pos, cand, voter, vote] = await Promise.all([
+          fetch('http://localhost:5000/api/positions').then(r=>r.json()),
+          fetch('http://localhost:5000/api/candidates').then(r=>r.json()),
+          fetch('http://localhost:5000/api/voters').then(r=>r.json()),
+          fetch('http://localhost:5000/api/votes').then(r=>r.json()),
+        ]);
+
+        document.getElementById('statPositions').textContent = pos.length;
+        document.getElementById('statCandidates').textContent = cand.length;
+        document.getElementById('statVoters').textContent = voter.length;
+        document.getElementById('statVotes').textContent = vote.length;
+
+        // Bar chart
+        new Chart(document.getElementById('barChart'), {
+          type: 'bar',
+          data: {
+            labels: cand.map(c=>c.name),
+            datasets: [{
+              label: 'Votes',
+              data: cand.map(c=>c.votes_count||0),
+              backgroundColor: cand.map((_,i)=>COLORS[i%COLORS.length]+'99'),
+              borderColor: cand.map((_,i)=>COLORS[i%COLORS.length]),
+              borderWidth: 1, borderRadius: 6,
+            }]
+          },
+          options: {
+            responsive:true, plugins:{legend:{display:false}},
+            scales:{
+              x:{ticks:{color:'#4a6580',font:{family:'Rajdhani'}}, grid:{color:'rgba(0,212,255,0.04)'}},
+              y:{ticks:{color:'#4a6580',font:{family:'Rajdhani'}}, grid:{color:'rgba(0,212,255,0.06)'}, beginAtZero:true}
+            }
+          }
+        });
+
+        // Group by position for doughnut
+        const groups = {};
+        cand.forEach(c=>{ if(!groups[c.position_name]) groups[c.position_name]=0; groups[c.position_name]+=(c.votes_count||0); });
+        const posLabels = Object.keys(groups);
+        const posData = posLabels.map(k=>groups[k]);
+
+        new Chart(document.getElementById('doughnutChart'), {
+          type: 'doughnut',
+          data: {
+            labels: posLabels,
+            datasets: [{data:posData, backgroundColor:COLORS.map(c=>c+'cc'), borderColor:COLORS, borderWidth:1}]
+          },
+          options: {
+            responsive:true, cutout:'65%',
+            plugins:{legend:{display:false}}
+          }
+        });
+
+        // Legend
+        document.getElementById('dLegend').innerHTML = posLabels.map((l,i)=>`
+          <div class="legend-item">
+            <div class="legend-dot" style="background:${COLORS[i%COLORS.length]}"></div>
+            <div class="legend-name">${l}</div>
+            <div class="legend-val">${posData[i]} votes</div>
+          </div>`).join('');
+
+        // Table
+        document.getElementById('candTable').innerHTML = cand.map((c,i)=>`
+          <tr>
+            <td style="color:var(--muted)">${i+1}</td>
+            <td style="font-weight:600">${c.name}</td>
+            <td><span class="badge badge-cyan">${c.position_name||'—'}</span></td>
+            <td style="color:var(--muted)">${c.party}</td>
+            <td style="font-family:'Orbitron',monospace;color:var(--accent);font-weight:700">${c.votes_count||0}</td>
+          </tr>`).join('');
+      } catch(e) {
+        console.error(e);
+      }
+    }
+    loadDashboard();
+  </script>
+</body>
+</html>

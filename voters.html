@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VoteSecure — Voters</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--bg:#020408;--s1:#060d18;--s2:#0a1628;--s3:#0f1e38;--border:rgba(0,212,255,0.10);--border2:rgba(0,212,255,0.22);--accent:#00d4ff;--accent2:#0066ff;--text:#c8dff0;--muted:#4a6580;--success:#00ff9d;--danger:#ff3366;--warning:#ffb800;--sw:250px;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;display:flex;min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;}
+    .sidebar{width:var(--sw);min-height:100vh;background:var(--s1);border-right:1px solid var(--border2);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;}
+    .sb-brand{padding:24px 20px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:12px;}
+    .sb-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 16px rgba(0,212,255,0.4);flex-shrink:0;}
+    .sb-title{font-family:'Orbitron',monospace;font-weight:700;font-size:14px;color:var(--accent);letter-spacing:1px;text-shadow:0 0 12px rgba(0,212,255,0.5);}
+    .sb-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+    .sb-nav{flex:1;padding:16px 12px;}
+    .sb-section{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:10px 12px 6px;font-weight:600;}
+    .nav-a{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;margin-bottom:2px;transition:all 0.2s;border:1px solid transparent;}
+    .nav-a:hover{background:var(--s2);color:var(--text);border-color:var(--border);}
+    .nav-a.active{background:rgba(0,212,255,0.07);color:var(--accent);border-color:var(--border2);}
+    .nav-a i{width:18px;text-align:center;font-size:13px;}
+    .sb-footer{padding:14px 12px;border-top:1px solid var(--border2);}
+    .sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--s2);border-radius:10px;border:1px solid var(--border);}
+    .sb-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--danger),#880022);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-family:'Orbitron',monospace;font-weight:700;color:#fff;flex-shrink:0;}
+    .sb-name{font-size:13px;font-weight:600;}
+    .sb-role{font-size:10px;color:var(--muted);}
+    .sb-logout{margin-left:auto;color:var(--muted);text-decoration:none;font-size:14px;transition:color 0.2s;}
+    .sb-logout:hover{color:var(--danger);}
+
+    .main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;position:relative;z-index:1;}
+    .topbar{padding:16px 28px;background:rgba(6,13,24,0.9);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);}
+    .topbar h1{font-family:'Orbitron',monospace;font-weight:700;font-size:18px;}
+    .topbar-right{display:flex;align-items:center;gap:12px;}
+    .search-wrap{position:relative;}
+    .search-input{background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:9px 14px 9px 36px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;outline:none;width:220px;transition:all 0.2s;}
+    .search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,0.1);}
+    .search-input::placeholder{color:var(--muted);}
+    .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;}
+    .count-pill{background:rgba(0,212,255,0.08);border:1px solid var(--border2);color:var(--accent);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;font-family:'Orbitron',monospace;}
+    .page{padding:28px;}
+    .data-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+    .data-card-hdr{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .data-card-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:600;letter-spacing:0.5px;}
+    table{width:100%;border-collapse:collapse;}
+    thead th{padding:12px 18px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);background:var(--s2);border-bottom:1px solid var(--border);}
+    tbody tr{border-bottom:1px solid rgba(0,212,255,0.04);transition:background 0.15s;}
+    tbody tr:hover{background:var(--s2);}
+    tbody td{padding:13px 18px;font-size:14px;}
+    .voter-cell{display:flex;align-items:center;gap:12px;}
+    .v-avatar{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+    .v-name{font-weight:600;font-size:14px;}
+    .v-id{font-size:11px;color:var(--muted);}
+    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:0.3px;}
+    .badge-cyan{background:rgba(0,212,255,0.08);color:var(--accent);}
+    .badge-green{background:rgba(0,255,157,0.08);color:var(--success);border:1px solid rgba(0,255,157,0.2);}
+    td.muted{color:var(--muted);font-size:13px;}
+    .empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-icon">🗳️</div>
+      <div><div class="sb-title">VOTESECURE</div><div class="sb-sub">Admin Panel</div></div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Main</div>
+      <a href="dashboard.html" class="nav-a"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="voters.html" class="nav-a active"><i class="fas fa-users"></i> Voters</a>
+      <div class="sb-section">Election</div>
+      <a href="positions.html" class="nav-a"><i class="fas fa-briefcase"></i> Positions</a>
+      <a href="candidates.html" class="nav-a"><i class="fas fa-user-tie"></i> Candidates</a>
+      <a href="votes.html" class="nav-a"><i class="fas fa-chart-bar"></i> Votes & Results</a>
+      <a href="election-title.html" class="nav-a"><i class="fas fa-clipboard-list"></i> Elections</a>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar">A</div>
+        <div><div class="sb-name">Administrator</div><div class="sb-role">Super Admin</div></div>
+        <a href="login.html" class="sb-logout"><i class="fas fa-sign-out-alt"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>VOTERS</h1>
+      <div class="topbar-right">
+        <div class="search-wrap">
+          <i class="fas fa-search search-icon"></i>
+          <input class="search-input" id="searchInput" placeholder="Search voters...">
+        </div>
+        <div class="count-pill" id="countPill">—</div>
+      </div>
+    </div>
+    <div class="page">
+      <div class="data-card">
+        <div class="data-card-hdr">
+          <div class="data-card-title">REGISTERED VOTERS</div>
+        </div>
+        <table>
+          <thead><tr><th>Voter</th><th>Age</th><th>Voter ID</th><th>Email</th><th>Registered</th><th>Status</th></tr></thead>
+          <tbody id="tbody"><tr><td colspan="6"><div class="empty-state">Loading voters...</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let allVoters=[];
+    const EMOJIS=['🧑','👩','🧔','👱','🧑‍💼','👨‍🦱','👩‍🦰','🧑‍🦲'];
+
+    async function load(){
+      try{
+        const res=await fetch('http://localhost:5000/api/voters');
+        allVoters=await res.json();
+        render(allVoters);
+      }catch(e){
+        document.getElementById('tbody').innerHTML=`<tr><td colspan="6"><div class="empty-state" style="color:var(--danger)">Error: ${e.message}</div></td></tr>`;
+      }
+    }
+
+    function render(list){
+      document.getElementById('countPill').textContent=list.length+' voters';
+      if(!list.length){document.getElementById('tbody').innerHTML='<tr><td colspan="6"><div class="empty-state">No voters found</div></td></tr>';return;}
+      document.getElementById('tbody').innerHTML=list.map((v,i)=>`
+        <tr>
+          <td>
+            <div class="voter-cell">
+              <div class="v-avatar">${EMOJIS[i%EMOJIS.length]}</div>
+              <div><div class="v-name">${v.name}</div><div class="v-id">#${v.id}</div></div>
+            </div>
+          </td>
+          <td><span class="badge badge-cyan">${v.age} yrs</span></td>
+          <td class="muted" style="font-family:'Orbitron',monospace;font-size:12px">${v.voter_id}</td>
+          <td class="muted">${v.email||'—'}</td>
+          <td class="muted">${v.created_at?new Date(v.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—'}</td>
+          <td><span class="badge badge-green">● Active</span></td>
+        </tr>`).join('');
+    }
+
+    document.getElementById('searchInput').oninput=function(){
+      const q=this.value.toLowerCase();
+      render(allVoters.filter(v=>v.name.toLowerCase().includes(q)||v.voter_id.toLowerCase().includes(q)||(v.email||'').toLowerCase().includes(q)));
+    };
+
+    load();
+  </script>
+</body>
+</html>

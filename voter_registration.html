@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VoteSecure — Register Voter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--bg:#020408;--s1:#060d18;--s2:#0a1628;--s3:#0f1e38;--border:rgba(0,212,255,0.10);--border2:rgba(0,212,255,0.22);--accent:#00d4ff;--accent2:#0066ff;--text:#c8dff0;--muted:#4a6580;--success:#00ff9d;--danger:#ff3366;--sw:250px;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;display:flex;min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;}
+    .sidebar{width:var(--sw);min-height:100vh;background:var(--s1);border-right:1px solid var(--border2);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;}
+    .sb-brand{padding:24px 20px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:12px;}
+    .sb-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 16px rgba(0,212,255,0.4);flex-shrink:0;}
+    .sb-title{font-family:'Orbitron',monospace;font-weight:700;font-size:14px;color:var(--accent);letter-spacing:1px;text-shadow:0 0 12px rgba(0,212,255,0.5);}
+    .sb-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+    .sb-nav{flex:1;padding:16px 12px;}
+    .sb-section{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:10px 12px 6px;font-weight:600;}
+    .nav-a{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;margin-bottom:2px;transition:all 0.2s;border:1px solid transparent;}
+    .nav-a:hover{background:var(--s2);color:var(--text);border-color:var(--border);}
+    .nav-a.active{background:rgba(0,212,255,0.07);color:var(--accent);border-color:var(--border2);}
+    .nav-a i{width:18px;text-align:center;font-size:13px;}
+    .nav-a.logout{color:var(--danger);}
+    .nav-a.logout:hover{background:rgba(255,51,102,0.08);}
+    .sb-footer{padding:14px 12px;border-top:1px solid var(--border2);}
+    .sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--s2);border-radius:10px;border:1px solid var(--border);}
+    .sb-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+    .sb-name{font-size:13px;font-weight:600;}
+    .sb-role{font-size:10px;color:var(--muted);}
+
+    .main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;position:relative;z-index:1;}
+    .topbar{padding:16px 28px;background:rgba(6,13,24,0.9);border-bottom:1px solid var(--border2);display:flex;align-items:center;position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);}
+    .topbar h1{font-family:'Orbitron',monospace;font-weight:700;font-size:18px;}
+    .page{padding:28px;max-width:600px;}
+
+    .reg-card{background:var(--s1);border:1px solid var(--border2);border-radius:20px;overflow:hidden;}
+    .reg-header{padding:26px 30px;border-bottom:1px solid var(--border2);background:linear-gradient(135deg,rgba(0,212,255,0.04),rgba(0,102,255,0.04));}
+    .reg-header h2{font-family:'Orbitron',monospace;font-weight:700;font-size:17px;margin-bottom:4px;}
+    .reg-header p{color:var(--muted);font-size:14px;}
+    .reg-body{padding:30px;}
+
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .field{margin-bottom:18px;}
+    .field label{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+    .field input{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;outline:none;transition:all 0.2s;}
+    .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,0.1);}
+    .field input::placeholder{color:#2a3f55;}
+
+    .btn-reg{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:11px;color:#000;font-family:'Orbitron',monospace;font-weight:700;font-size:13px;cursor:pointer;letter-spacing:1px;transition:all 0.2s;box-shadow:0 4px 20px rgba(0,212,255,0.3);margin-top:4px;}
+    .btn-reg:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,212,255,0.4);}
+
+    .alert{border-radius:10px;padding:12px 16px;font-size:14px;margin-top:16px;border:1px solid;font-weight:500;}
+    .alert-success{background:rgba(0,255,157,0.08);border-color:rgba(0,255,157,0.25);color:var(--success);}
+    .alert-danger{background:rgba(255,51,102,0.08);border-color:rgba(255,51,102,0.25);color:var(--danger);}
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-icon">🗳️</div>
+      <div><div class="sb-title">VOTESECURE</div><div class="sb-sub">Voter Portal</div></div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Navigation</div>
+      <a href="voter_dashboard.html" class="nav-a"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="candidate_list.html" class="nav-a"><i class="fas fa-users"></i> Candidates</a>
+      <a href="cast_vote.html" class="nav-a"><i class="fas fa-vote-yea"></i> Cast Vote</a>
+      <a href="voter_registration.html" class="nav-a active"><i class="fas fa-user-plus"></i> Register Voter</a>
+      <div class="sb-section" style="margin-top:12px">Account</div>
+      <a href="login.html" class="nav-a logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar">👤</div>
+        <div><div class="sb-name">Voter</div><div class="sb-role">Registered</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar"><h1>REGISTER VOTER</h1></div>
+    <div class="page">
+      <div class="reg-card">
+        <div class="reg-header">
+          <h2>🧑‍💼 New Voter Registration</h2>
+          <p>Fill in the details below to register an eligible voter into the system.</p>
+        </div>
+        <div class="reg-body">
+          <div class="two-col">
+            <div class="field"><label>Full Name</label><input type="text" id="name" placeholder="John Doe"></div>
+            <div class="field"><label>Age</label><input type="number" id="age" placeholder="18+"></div>
+          </div>
+          <div class="field"><label>Voter ID</label><input type="text" id="voterId" placeholder="VID-XXXXX"></div>
+          <div class="field"><label>Email</label><input type="email" id="email" placeholder="voter@email.com"></div>
+          <div class="field"><label>Password</label><input type="password" id="password" placeholder="••••••••"></div>
+          <button class="btn-reg" onclick="register()"><i class="fas fa-user-plus"></i> REGISTER VOTER</button>
+          <div id="msgArea"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function register() {
+      const name=document.getElementById('name').value.trim();
+      const age=parseInt(document.getElementById('age').value);
+      const voter_id=document.getElementById('voterId').value.trim();
+      const email=document.getElementById('email').value.trim();
+      const password=document.getElementById('password').value.trim();
+      const msg=document.getElementById('msgArea');
+      if(!name||!age||!voter_id||!email||!password){msg.innerHTML='<div class="alert alert-danger">⚠️ Please fill in all fields.</div>';return;}
+      try{
+        const res=await fetch('http://localhost:5000/api/voters',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({name,age,voter_id,email,password})
+        });
+        const data=await res.json();
+        if(!res.ok) throw new Error(data.error||'Registration failed');
+        msg.innerHTML=`<div class="alert alert-success">✅ Voter <strong>${data.name}</strong> registered successfully!</div>`;
+        ['name','age','voterId','email','password'].forEach(id=>document.getElementById(id).value='');
+      }catch(e){
+        msg.innerHTML=`<div class="alert alert-danger">❌ ${e.message}</div>`;
+      }
+    }
+  </script>
+</body>
+</html>

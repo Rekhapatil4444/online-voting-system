@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VoteSecure — Candidates</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--bg:#020408;--s1:#060d18;--s2:#0a1628;--s3:#0f1e38;--border:rgba(0,212,255,0.10);--border2:rgba(0,212,255,0.22);--accent:#00d4ff;--accent2:#0066ff;--text:#c8dff0;--muted:#4a6580;--success:#00ff9d;--danger:#ff3366;--warning:#ffb800;--sw:250px;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;display:flex;min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;}
+    .sidebar{width:var(--sw);min-height:100vh;background:var(--s1);border-right:1px solid var(--border2);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;}
+    .sb-brand{padding:24px 20px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:12px;}
+    .sb-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 16px rgba(0,212,255,0.4);flex-shrink:0;}
+    .sb-title{font-family:'Orbitron',monospace;font-weight:700;font-size:14px;color:var(--accent);letter-spacing:1px;text-shadow:0 0 12px rgba(0,212,255,0.5);}
+    .sb-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+    .sb-nav{flex:1;padding:16px 12px;}
+    .sb-section{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:10px 12px 6px;font-weight:600;}
+    .nav-a{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;margin-bottom:2px;transition:all 0.2s;border:1px solid transparent;}
+    .nav-a:hover{background:var(--s2);color:var(--text);border-color:var(--border);}
+    .nav-a.active{background:rgba(0,212,255,0.07);color:var(--accent);border-color:var(--border2);}
+    .nav-a i{width:18px;text-align:center;font-size:13px;}
+    .nav-a.logout{color:var(--danger);}
+    .nav-a.logout:hover{background:rgba(255,51,102,0.08);}
+    .sb-footer{padding:14px 12px;border-top:1px solid var(--border2);}
+    .sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--s2);border-radius:10px;border:1px solid var(--border);}
+    .sb-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+    .sb-name{font-size:13px;font-weight:600;}
+    .sb-role{font-size:10px;color:var(--muted);}
+
+    .main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;position:relative;z-index:1;}
+    .topbar{padding:16px 28px;background:rgba(6,13,24,0.9);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);}
+    .topbar h1{font-family:'Orbitron',monospace;font-weight:700;font-size:18px;}
+    .search-wrap{position:relative;}
+    .search-input{background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:9px 14px 9px 36px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;outline:none;width:220px;transition:all 0.2s;}
+    .search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,0.1);}
+    .search-input::placeholder{color:var(--muted);}
+    .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;}
+    .page{padding:28px;}
+
+    /* Filter tabs */
+    .filter-row{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
+    .filter-btn{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:7px 16px;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;}
+    .filter-btn:hover{border-color:var(--border2);color:var(--text);}
+    .filter-btn.active{background:rgba(0,212,255,0.08);border-color:var(--border2);color:var(--accent);}
+
+    /* Candidate grid */
+    .cand-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+    .cand-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px;transition:all 0.25s;position:relative;overflow:hidden;}
+    .cand-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity 0.3s;}
+    .cand-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,212,255,0.1);}
+    .cand-card:hover::before{opacity:1;}
+    .cand-top{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+    .cand-avatar{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 0 16px rgba(0,102,255,0.3);}
+    .cand-name{font-weight:700;font-size:16px;margin-bottom:3px;}
+    .cand-party{display:inline-flex;padding:2px 10px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);color:#a5b4fc;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:0.5px;}
+    .cand-pos{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:rgba(0,212,255,0.06);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--accent);margin-top:10px;width:100%;}
+    /* votes hidden from voters — only shown in admin panel */
+
+    .empty{text-align:center;padding:60px 20px;color:var(--muted);}
+    .empty .icon{font-size:48px;margin-bottom:12px;opacity:0.4;}
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-icon">🗳️</div>
+      <div><div class="sb-title">VOTESECURE</div><div class="sb-sub">Voter Portal</div></div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Navigation</div>
+      <a href="voter_dashboard.html" class="nav-a"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="candidate_list.html" class="nav-a active"><i class="fas fa-users"></i> Candidates</a>
+      <a href="cast_vote.html" class="nav-a"><i class="fas fa-vote-yea"></i> Cast Vote</a>
+      <div class="sb-section" style="margin-top:12px">Account</div>
+      <a href="login.html" class="nav-a logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar">👤</div>
+        <div><div class="sb-name">Voter</div><div class="sb-role">Registered</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>CANDIDATES</h1>
+      <div class="search-wrap">
+        <i class="fas fa-search search-icon"></i>
+        <input class="search-input" id="searchInput" placeholder="Search candidates...">
+      </div>
+    </div>
+    <div class="page">
+      <div class="filter-row" id="filterRow">
+        <button class="filter-btn active" onclick="filterBy('',this)">ALL</button>
+      </div>
+      <div class="cand-grid" id="candGrid">
+        <div class="empty"><div class="icon">👥</div><p>Loading candidates...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let allCandidates = [];
+    let activeFilter = '';
+    const EMOJIS = ['🧑','👩','🧔','👱','🧑‍💼','👨‍🦱','👩‍🦰','🧑‍🦲'];
+
+    async function load() {
+      try {
+        const res = await fetch('http://localhost:5000/api/candidates');
+        allCandidates = await res.json();
+
+        // Build position filter buttons
+        const positions = [...new Set(allCandidates.map(c=>c.position_name).filter(Boolean))];
+        const filterRow = document.getElementById('filterRow');
+        positions.forEach(p=>{
+          const btn = document.createElement('button');
+          btn.className='filter-btn'; btn.textContent=p;
+          btn.onclick=()=>filterBy(p,btn);
+          filterRow.appendChild(btn);
+        });
+
+        renderCards(allCandidates);
+      } catch(e) {
+        document.getElementById('candGrid').innerHTML='<div class="empty"><div class="icon">⚠️</div><p>Error loading candidates</p></div>';
+      }
+    }
+
+    function renderCards(list) {
+      if(!list.length){ document.getElementById('candGrid').innerHTML='<div class="empty"><div class="icon">👥</div><p>No candidates found</p></div>'; return; }
+      document.getElementById('candGrid').innerHTML = list.map((c,i)=>`
+        <div class="cand-card">
+          <div class="cand-top">
+            <div class="cand-avatar">${EMOJIS[i%EMOJIS.length]}</div>
+            <div>
+              <div class="cand-name">${c.name}</div>
+              <span class="cand-party">${c.party||'Independent'}</span>
+            </div>
+          </div>
+          <div class="cand-pos"><i class="fas fa-briefcase" style="font-size:11px"></i>${c.position_name||'N/A'}</div>
+        </div>`).join('');
+    }
+
+    function filterBy(pos, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = pos;
+      const filtered = pos ? allCandidates.filter(c=>c.position_name===pos) : allCandidates;
+      renderCards(filtered);
+    }
+
+    document.getElementById('searchInput').oninput = function() {
+      const q = this.value.toLowerCase();
+      let list = activeFilter ? allCandidates.filter(c=>c.position_name===activeFilter) : allCandidates;
+      list = list.filter(c=>c.name.toLowerCase().includes(q)||(c.party||'').toLowerCase().includes(q));
+      renderCards(list);
+    };
+
+    load();
+  </script>
+</body>
+</html>

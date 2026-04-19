@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VoteSecure — Votes & Results</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--bg:#020408;--s1:#060d18;--s2:#0a1628;--s3:#0f1e38;--border:rgba(0,212,255,0.10);--border2:rgba(0,212,255,0.22);--accent:#00d4ff;--accent2:#0066ff;--text:#c8dff0;--muted:#4a6580;--success:#00ff9d;--danger:#ff3366;--warning:#ffb800;--sw:250px;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;display:flex;min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;}
+    .sidebar{width:var(--sw);min-height:100vh;background:var(--s1);border-right:1px solid var(--border2);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;}
+    .sb-brand{padding:24px 20px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:12px;}
+    .sb-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 16px rgba(0,212,255,0.4);flex-shrink:0;}
+    .sb-title{font-family:'Orbitron',monospace;font-weight:700;font-size:14px;color:var(--accent);letter-spacing:1px;text-shadow:0 0 12px rgba(0,212,255,0.5);}
+    .sb-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+    .sb-nav{flex:1;padding:16px 12px;}
+    .sb-section{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:10px 12px 6px;font-weight:600;}
+    .nav-a{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;margin-bottom:2px;transition:all 0.2s;border:1px solid transparent;}
+    .nav-a:hover{background:var(--s2);color:var(--text);border-color:var(--border);}
+    .nav-a.active{background:rgba(0,212,255,0.07);color:var(--accent);border-color:var(--border2);}
+    .nav-a i{width:18px;text-align:center;font-size:13px;}
+    .sb-footer{padding:14px 12px;border-top:1px solid var(--border2);}
+    .sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--s2);border-radius:10px;border:1px solid var(--border);}
+    .sb-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--danger),#880022);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-family:'Orbitron',monospace;font-weight:700;color:#fff;flex-shrink:0;}
+    .sb-name{font-size:13px;font-weight:600;}
+    .sb-role{font-size:10px;color:var(--muted);}
+    .sb-logout{margin-left:auto;color:var(--muted);text-decoration:none;font-size:14px;transition:color 0.2s;}
+    .sb-logout:hover{color:var(--danger);}
+
+    .main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;position:relative;z-index:1;}
+    .topbar{padding:16px 28px;background:rgba(6,13,24,0.9);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);}
+    .topbar h1{font-family:'Orbitron',monospace;font-weight:700;font-size:18px;}
+    .btn-declare{display:flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,var(--success),#00cc7a);border:none;border-radius:10px;color:#000;font-family:'Orbitron',monospace;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;box-shadow:0 4px 16px rgba(0,255,157,0.25);}
+    .btn-declare:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,255,157,0.35);}
+    .page{padding:28px;}
+
+    .section-hdr{font-family:'Orbitron',monospace;font-size:13px;font-weight:600;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:12px;letter-spacing:0.5px;}
+    .section-hdr::after{content:'';flex:1;height:1px;background:var(--border);}
+
+    .data-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:28px;}
+    table{width:100%;border-collapse:collapse;}
+    thead th{padding:12px 18px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);background:var(--s2);border-bottom:1px solid var(--border);}
+    tbody tr{border-bottom:1px solid rgba(0,212,255,0.04);transition:background 0.15s;}
+    tbody tr:hover{background:var(--s2);}
+    tbody td{padding:13px 18px;font-size:14px;}
+    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+    .badge-cyan{background:rgba(0,212,255,0.08);color:var(--accent);}
+    .badge-purple{background:rgba(99,102,241,0.12);color:#a5b4fc;}
+    .bar-wrap{display:flex;align-items:center;gap:10px;}
+    .bar-track{flex:1;height:5px;background:var(--s2);border-radius:3px;overflow:hidden;min-width:70px;}
+    .bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width 1s ease;}
+    .vote-num{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;color:var(--accent);min-width:24px;}
+
+    /* Winners grid */
+    #winnersSection{display:none;}
+    .winners-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;}
+    .winner-card{background:var(--s1);border:1px solid rgba(0,255,157,0.2);border-radius:16px;padding:24px;position:relative;overflow:hidden;animation:fadeUp 0.4s ease both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+    .winner-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--success),transparent);}
+    .winner-card::after{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:radial-gradient(circle,rgba(0,255,157,0.06),transparent 70%);}
+    .w-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,255,157,0.1);border:1px solid rgba(0,255,157,0.3);color:var(--success);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:0.5px;margin-bottom:14px;}
+    .w-pos{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+    .w-name{font-family:'Orbitron',monospace;font-weight:700;font-size:16px;margin-bottom:4px;}
+    .w-party{font-size:13px;color:var(--muted);margin-bottom:16px;}
+    .w-votes{font-family:'Orbitron',monospace;font-size:32px;font-weight:900;color:var(--success);line-height:1;}
+    .w-votes-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-icon">🗳️</div>
+      <div><div class="sb-title">VOTESECURE</div><div class="sb-sub">Admin Panel</div></div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Main</div>
+      <a href="dashboard.html" class="nav-a"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="voters.html" class="nav-a"><i class="fas fa-users"></i> Voters</a>
+      <div class="sb-section">Election</div>
+      <a href="positions.html" class="nav-a"><i class="fas fa-briefcase"></i> Positions</a>
+      <a href="candidates.html" class="nav-a"><i class="fas fa-user-tie"></i> Candidates</a>
+      <a href="votes.html" class="nav-a active"><i class="fas fa-chart-bar"></i> Votes & Results</a>
+      <a href="election-title.html" class="nav-a"><i class="fas fa-clipboard-list"></i> Elections</a>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar">A</div>
+        <div><div class="sb-name">Administrator</div><div class="sb-role">Super Admin</div></div>
+        <a href="login.html" class="sb-logout"><i class="fas fa-sign-out-alt"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>VOTES & RESULTS</h1>
+      <button class="btn-declare" onclick="declareResults()">🏆 DECLARE RESULTS</button>
+    </div>
+    <div class="page">
+      <div class="section-hdr">VOTES TALLY</div>
+      <div class="data-card">
+        <table>
+          <thead><tr><th>#</th><th>Candidate</th><th>Position</th><th>Party</th><th>Vote Count</th></tr></thead>
+          <tbody id="tallyBody"><tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+
+      <div id="winnersSection">
+        <div class="section-hdr">🏆 DECLARED WINNERS</div>
+        <div class="winners-grid" id="winnersGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let candidatesData=[];
+    const EMOJIS=['🧑','👩','🧔','👱','🧑‍💼','👨‍🦱'];
+
+    async function fetchData(){
+      try{
+        const res=await fetch('http://localhost:5000/api/candidates');
+        candidatesData=await res.json();
+        const maxV=Math.max(...candidatesData.map(c=>c.votes_count||0),1);
+        document.getElementById('tallyBody').innerHTML=candidatesData.map((c,i)=>`
+          <tr>
+            <td style="color:var(--muted)">${i+1}</td>
+            <td style="font-weight:600">${c.name}</td>
+            <td><span class="badge badge-cyan">${c.position_name||'—'}</span></td>
+            <td><span class="badge badge-purple">${c.party||'—'}</span></td>
+            <td>
+              <div class="bar-wrap">
+                <div class="bar-track"><div class="bar-fill" id="bar${c.id}" style="width:0%"></div></div>
+                <span class="vote-num">${c.votes_count||0}</span>
+              </div>
+            </td>
+          </tr>`).join('');
+        setTimeout(()=>candidatesData.forEach(c=>{const el=document.getElementById('bar'+c.id);if(el)el.style.width=((c.votes_count||0)/maxV*100)+'%';}),100);
+      }catch(e){
+        document.getElementById('tallyBody').innerHTML=`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--danger)">Error: ${e.message}</td></tr>`;
+      }
+    }
+
+    function declareResults(){
+      if(!candidatesData.length)return;
+      const grouped={};
+      candidatesData.forEach(c=>{if(!grouped[c.position_name])grouped[c.position_name]=[];grouped[c.position_name].push(c);});
+      const grid=document.getElementById('winnersGrid');
+      grid.innerHTML=Object.keys(grouped).map((pos,idx)=>{
+        const sorted=[...grouped[pos]].sort((a,b)=>(b.votes_count||0)-(a.votes_count||0));
+        const w=sorted[0];
+        return `<div class="winner-card" style="animation-delay:${idx*0.08}s">
+          <div class="w-badge">🏆 WINNER</div>
+          <div class="w-pos">${pos}</div>
+          <div class="w-name">${w.name}</div>
+          <div class="w-party">${w.party||'Independent'}</div>
+          <div class="w-votes">${w.votes_count||0}</div>
+          <div class="w-votes-lbl">Total Votes</div>
+        </div>`;
+      }).join('');
+      const sec=document.getElementById('winnersSection');
+      sec.style.display='block';
+      setTimeout(()=>sec.scrollIntoView({behavior:'smooth'}),100);
+    }
+
+    fetchData();
+  </script>
+</body>
+</html>

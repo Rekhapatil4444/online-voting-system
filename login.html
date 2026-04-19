@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VoteSecure — Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #020408; --s1: #060d18; --s2: #0a1628; --s3: #0f1e38;
+      --border: rgba(0,212,255,0.12); --border2: rgba(0,212,255,0.25);
+      --accent: #00d4ff; --accent2: #0066ff; --glow: rgba(0,212,255,0.2);
+      --text: #c8dff0; --muted: #4a6580; --success: #00ff9d;
+      --danger: #ff3366; --warning: #ffb800;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animated grid bg */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 700px 500px at 20% 50%, rgba(0,102,255,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 500px 700px at 80% 20%, rgba(0,212,255,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .container {
+      display: flex;
+      width: 900px;
+      min-height: 560px;
+      position: relative;
+      z-index: 1;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--border2);
+      box-shadow: 0 0 60px rgba(0,212,255,0.08), 0 40px 80px rgba(0,0,0,0.8);
+      animation: appear 0.7s ease both;
+    }
+    @keyframes appear { from { opacity:0; transform:scale(0.96) translateY(20px); } to { opacity:1; transform:none; } }
+
+    /* === LEFT PANEL === */
+    .left-panel {
+      flex: 1.1;
+      background: linear-gradient(135deg, #020c1e 0%, #061428 50%, #020c1e 100%);
+      padding: 50px 44px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px solid var(--border2);
+      position: relative;
+      overflow: hidden;
+    }
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      bottom: -120px; left: -120px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(0,102,255,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(0,212,255,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .logo { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
+    .logo-icon {
+      width: 46px; height: 46px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 20px rgba(0,212,255,0.4);
+    }
+    .logo-text { font-family: 'Orbitron', monospace; font-weight: 700; font-size: 20px; color: var(--accent); letter-spacing: 1px; text-shadow: 0 0 20px rgba(0,212,255,0.5); }
+
+    .hero { position: relative; z-index: 1; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid rgba(0,212,255,0.3);
+      background: rgba(0,212,255,0.05);
+      border-radius: 20px; padding: 5px 14px;
+      font-size: 11px; color: var(--accent);
+      letter-spacing: 1.5px; text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .hero-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: blink 1.5s infinite; }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+    .hero h1 {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900; font-size: 38px;
+      line-height: 1.1; letter-spacing: -1px;
+      margin-bottom: 18px;
+    }
+    .hero h1 span { display: block; color: var(--accent); text-shadow: 0 0 30px rgba(0,212,255,0.6); }
+    .hero p { color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 280px; }
+
+    .stats-row { display: flex; gap: 16px; position: relative; z-index: 1; }
+    .stat {
+      flex: 1; padding: 14px 16px;
+      background: rgba(0,212,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .stat-num { font-family: 'Orbitron', monospace; font-size: 20px; font-weight: 700; color: var(--accent); }
+    .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* === RIGHT PANEL === */
+    .right-panel {
+      flex: 1;
+      background: var(--s1);
+      padding: 44px 42px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tab-row {
+      display: flex;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 30px;
+    }
+    .tab-btn {
+      flex: 1; padding: 9px 6px;
+      background: transparent; border: none;
+      color: var(--muted); font-family: 'Rajdhani', sans-serif;
+      font-size: 14px; font-weight: 600;
+      border-radius: 7px; cursor: pointer;
+      transition: all 0.2s; letter-spacing: 0.5px;
+    }
+    .tab-btn.active {
+      background: var(--s3);
+      color: var(--accent);
+      box-shadow: 0 0 12px rgba(0,212,255,0.15);
+      border: 1px solid var(--border2);
+    }
+
+    .mode-row {
+      display: flex; gap: 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 26px; padding-bottom: 0;
+    }
+    .mode-btn {
+      background: none; border: none;
+      color: var(--muted); font-family: 'Rajdhani', sans-serif;
+      font-size: 15px; font-weight: 600;
+      padding-bottom: 12px; cursor: pointer;
+      position: relative; transition: color 0.2s;
+      letter-spacing: 0.5px;
+    }
+    .mode-btn.active { color: var(--text); }
+    .mode-btn.active::after {
+      content: '';
+      position: absolute; bottom: -1px; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+
+    .form-sec { display: none; animation: fadeIn 0.3s ease; }
+    .form-sec.active { display: block; }
+    @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block; font-size: 11px; font-weight: 600;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: 1px; margin-bottom: 7px;
+    }
+    .field input {
+      width: 100%; background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 9px; padding: 11px 14px;
+      color: var(--text); font-family: 'Rajdhani', sans-serif;
+      font-size: 15px; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,212,255,0.1), 0 0 15px rgba(0,212,255,0.08);
+    }
+    .field input::placeholder { color: #2a3f55; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .btn-main {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none; border-radius: 10px;
+      color: #000; font-family: 'Orbitron', monospace;
+      font-weight: 700; font-size: 13px;
+      cursor: pointer; transition: all 0.2s;
+      letter-spacing: 1px; margin-top: 4px;
+      box-shadow: 0 4px 20px rgba(0,212,255,0.3);
+    }
+    .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,212,255,0.45); }
+    .btn-main:active { transform: scale(0.99); }
+
+    .btn-danger {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, #ff3366, #cc0033);
+      border: none; border-radius: 10px;
+      color: #fff; font-family: 'Orbitron', monospace;
+      font-weight: 700; font-size: 13px;
+      cursor: pointer; transition: all 0.2s; letter-spacing: 1px; margin-top: 4px;
+      box-shadow: 0 4px 20px rgba(255,51,102,0.3);
+    }
+    .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,51,102,0.4); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Left -->
+    <div class="left-panel">
+      <div class="logo">
+        <div class="logo-icon">🗳️</div>
+        <div class="logo-text">VOTESECURE</div>
+      </div>
+      <div class="hero">
+        <div class="hero-tag">System Active</div>
+        <h1>Your Vote.<br><span>Your Power.</span></h1>
+        <p>Secure, transparent and tamper-proof digital elections. Every vote is encrypted and anonymous.</p>
+      </div>
+      <div class="stats-row">
+        <div class="stat"><div class="stat-num">100%</div><div class="stat-lbl">Secure</div></div>
+        <div class="stat"><div class="stat-num">Live</div><div class="stat-lbl">Results</div></div>
+        <div class="stat"><div class="stat-num">1x</div><div class="stat-lbl">Per Voter</div></div>
+      </div>
+    </div>
+
+    <!-- Right -->
+    <div class="right-panel">
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="switchRole('voter',this)">🧑 VOTER</button>
+        <button class="tab-btn" onclick="switchRole('admin',this)">🛡️ ADMIN</button>
+      </div>
+
+      <!-- VOTER -->
+      <div id="voterPanel">
+        <div class="mode-row">
+          <button class="mode-btn active" onclick="switchMode('login',this)">LOGIN</button>
+          <button class="mode-btn" onclick="switchMode('register',this)">REGISTER</button>
+        </div>
+
+        <!-- Login -->
+        <div class="form-sec active" id="loginSec">
+          <div class="field"><label>Email or Voter ID</label><input id="lEmail" type="text" placeholder="voter@email.com or VID-XXXXX"></div>
+          <div class="field"><label>Password</label><input id="lPass" type="password" placeholder="••••••••"></div>
+          <button class="btn-main" onclick="doLogin()">ACCESS SYSTEM →</button>
+        </div>
+
+        <!-- Register -->
+        <div class="form-sec" id="regSec">
+          <div class="two-col">
+            <div class="field"><label>Full Name</label><input id="rName" type="text" placeholder="Full name"></div>
+            <div class="field"><label>Age</label><input id="rAge" type="number" placeholder="18+"></div>
+          </div>
+          <div class="field"><label>Email</label><input id="rEmail" type="email" placeholder="you@email.com"></div>
+          <div class="two-col">
+            <div class="field"><label>Voter ID</label><input id="rVid" type="text" placeholder="VID-XXXXX"></div>
+            <div class="field"><label>Password</label><input id="rPass" type="password" placeholder="••••••••"></div>
+          </div>
+          <button class="btn-main" onclick="doRegister()">CREATE ACCOUNT →</button>
+        </div>
+      </div>
+
+      <!-- ADMIN -->
+      <div id="adminPanel" style="display:none">
+        <div class="field"><label>Admin Username</label><input id="aUser" type="text" placeholder="admin"></div>
+        <div class="field"><label>Password</label><input id="aPass" type="password" placeholder="••••••••"></div>
+        <button class="btn-danger" onclick="doAdmin()">ADMIN ACCESS →</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchRole(role, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('voterPanel').style.display = role==='voter'?'block':'none';
+      document.getElementById('adminPanel').style.display = role==='admin'?'block':'none';
+    }
+    function switchMode(mode, btn) {
+      document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('loginSec').classList.toggle('active', mode==='login');
+      document.getElementById('regSec').classList.toggle('active', mode==='register');
+    }
+
+    async function doLogin() {
+      const idOrEmail = document.getElementById('lEmail').value.trim();
+      const password = document.getElementById('lPass').value.trim();
+      if (!idOrEmail || !password) return alert('Please fill all fields');
+      try {
+        const res = await fetch('http://localhost:5000/api/voters/login', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({idOrEmail, password})
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          localStorage.setItem('voter', JSON.stringify(data.voter));
+          window.location.href = 'voter_dashboard.html';
+        } else { alert(data.error || 'Invalid credentials'); }
+      } catch(e) { alert('Server error: '+e.message); }
+    }
+
+    async function doRegister() {
+      const name=document.getElementById('rName').value.trim();
+      const age=document.getElementById('rAge').value.trim();
+      const email=document.getElementById('rEmail').value.trim();
+      const voter_id=document.getElementById('rVid').value.trim();
+      const password=document.getElementById('rPass').value.trim();
+      if (!name||!age||!email||!voter_id||!password) return alert('Please fill all fields');
+      try {
+        const res = await fetch('http://localhost:5000/api/voters', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({name,age,email,voter_id,password})
+        });
+        const data = await res.json();
+        if (res.ok && data.id) { alert('Registration successful! You can now log in.'); switchMode('login', document.querySelectorAll('.mode-btn')[0]); }
+        else alert(data.error||'Registration failed');
+      } catch(e) { alert('Error: '+e.message); }
+    }
+
+    function doAdmin() {
+      const u=document.getElementById('aUser').value.trim();
+      const p=document.getElementById('aPass').value.trim();
+      if (u==='admin'&&p==='admin123') { window.location.href='dashboard.html'; }
+      else alert('Invalid admin credentials');
+    }
+
+    // Enter key support
+    document.addEventListener('keydown', e => {
+      if (e.key==='Enter') {
+        if (document.getElementById('loginSec').classList.contains('active') && document.getElementById('voterPanel').style.display!=='none') doLogin();
+      }
+    });
+  </script>
+</body>
+</html>
