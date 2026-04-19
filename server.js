@@ -10,16 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // ✅ DB CONNECTION (from .env)
-const db = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'voting_system',
-  port: process.env.DB_PORT || 3306,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
+const db = mysql.createPool(process.env.DATABASE_URL);
 
 // ---------------- TEST ROUTE ----------------
 app.get('/', (req, res) => {
@@ -177,4 +168,7 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+app.get('/', (req, res) => {
+  res.send('Online Voting System Backend Running 🚀');
 });
